@@ -4,9 +4,9 @@ This project demonstrates how to implement JWT authentication using the jsonwebt
 
 ## Dependencies
 
-- dotenv
-- express
-- jsonwebtoken
+* dotenv
+* express
+* jsonwebtoken
 
 ## How it works
 
@@ -21,19 +21,15 @@ The project uses the following steps to implement JWT authentication:
 
 ## Code
 
-```python
-import dotenv
-import express
-import jsonwebtoken
+```javascript
+const express = require('express');
+const app = express();
+const jwt = require('jsonwebtoken');
 
-app = express()
-app.use(express.json())
+app.use(express.json());
 
-# Load environment variables from .env file
-dotenv.config()
-
-# Create a list of posts
-posts = [
+// Create a list of posts
+const posts = [
   {
     "username": "ishak",
     "title": "post 1",
@@ -42,39 +38,39 @@ posts = [
     "username": "moad",
     "title": "post 2",
   },
-]
+];
 
-# Authenticate user
-@app.post("/login")
-def login():
-  username = request.body.username
-  user = { "name": username }
+// Authenticate user
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  const user = { "name": username };
 
-  accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-  return jsonify({ "accessToken": accessToken })
+  const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
+  return res.json({ "accessToken": accessToken });
+});
 
-# Verify token
-@app.get("/posts", authenticateToken)
-def get_posts():
-  res.json(posts.filter((post) => post.username === req.user.name))
+// Verify token
+app.get('/posts', authenticateToken, (req, res) => {
+  res.json(posts.filter((post) => post.username === req.user.name));
+});
 
-# Middleware to verify token
-def authenticateToken(req, res, next):
-  authHeader = req.headers["authorization"]
-  token = authHeader.split(" ")[1]
+// Middleware to verify token
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader.split(' ')[1];
 
-  if token == null:
-    return res.sendStatus(401)
+  if (!token) {
+    return res.sendStatus(401);
+  }
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if err:
-      return res.sendStatus(403)
+    if (err) {
+      return res.sendStatus(403);
+    }
 
-    req.user = user
-    next()
-  })
+    req.user = user;
+    next();
+  });
+}
 
-# Start server
-app.listen(3000)
-```
-"# simple-JWT-implementation" 
+app.listen(3000);
