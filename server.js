@@ -19,22 +19,14 @@ app.get("/posts", authenticateToken, (req, res) => {
   res.json(posts.filter((post) => post.username === req.user.name));
 });
 
-app.post("/login", (req, res) => {
-  // Authenticate user
-  const username = req.body.username;
-  const user = { name: username };
-
-  const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
-  res.json({ accessToken: accessToken });
-});
-
 function authenticateToken(req, res, next) {
   // getting the authorization headers and spliting in it because
-  // the result is like  Bearer TOKEN
+  // the result is in format:  Bearer TOKEN
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  // if no authorization is provided Unauthorized status is sent
+  // if no authorization header is provided Unauthorized status is sent
   if (token == null) return res.sendStatus(401);
+
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user;
